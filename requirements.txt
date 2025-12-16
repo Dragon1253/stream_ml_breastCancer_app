@@ -16,3 +16,4 @@ langchain-huggingface
 langchain-chroma
 openai
 python-dotenv
+tf-keras
