@@ -138,7 +138,7 @@ if page == "Chatbot":
 
             try:
                 response = client.chat.completions.create(
-                    model="llama3-8b-8192", # Using a Groq model
+                    model="openai/gpt-oss-20b", # Using a Groq model
                     messages=[
                         {"role": "system", "content": "You are a helpful medical assistant."},
                         {"role": "user", "content": full_prompt}
@@ -208,7 +208,7 @@ elif page == "Image Analysis":
                     context = get_relevant_context(f"Breast cancer diagnosis {label}")
                     
                     ai_response = client.chat.completions.create(
-                        model="llama3-8b-8192",
+                        model="openai/gpt-oss-20b",
                         messages=[
                             {"role": "system", "content": "You are a medical AI. Interpret the diagnostic results."},
                             {"role": "user", "content": f"Diagnosis: {label} ({prob:.2%}). Context: {context}"}
@@ -291,7 +291,7 @@ elif page == "Risk Assessment":
                 st.subheader("AI Recommendations")
                 context = get_relevant_context("breast cancer risk factors")
                 ai_response = client.chat.completions.create(
-                    model="llama3-8b-8192",
+                    model="openai/gpt-oss-20b",
                     messages=[
                         {"role": "system", "content": "You are a medical AI. Provide recommendations based on risk assessment."},
                         {"role": "user", "content": f"Risk: {probability:.2%}. Patient Data: {input_data}. Context: {context}"}
