@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os
 import joblib
 import numpy as np
@@ -94,7 +95,7 @@ def get_relevant_context(query: str):
 # Navigation
 # ---------------------------
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Chatbot", "Image Analysis", "Risk Assessment"])
+page = st.sidebar.radio("Go to", ["Chatbot", "Image Analysis", "Risk Assessment", "Dashboard", "Chat UI"])
 
 st.sidebar.markdown("---")
 st.sidebar.info("Breast Cancer AI Assistant v1.0")
@@ -300,3 +301,29 @@ elif page == "Risk Assessment":
 
             except Exception as e:
                 st.error(f"Error in calculation: {e}")
+
+# ---------------------------
+# Dashboard Page (HTML)
+# ---------------------------
+elif page == "Dashboard":
+    st.title("Medical Dashboard")
+    st.info("Note: This is a static view of the legacy HTML interface. For interactive functionality, use the native Streamlit pages or ensure the FastAPI backend is running.")
+    try:
+        with open("dashboard.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        components.html(html_content, height=1000, scrolling=True)
+    except FileNotFoundError:
+        st.error("dashboard.html not found.")
+
+# ---------------------------
+# Chat UI Page (HTML)
+# ---------------------------
+elif page == "Chat UI":
+    st.title("Chat Interface")
+    st.info("Note: This is a static view of the legacy HTML interface. For interactive functionality, use the native Streamlit pages or ensure the FastAPI backend is running.")
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+        components.html(html_content, height=800, scrolling=True)
+    except FileNotFoundError:
+        st.error("index.html not found.")
