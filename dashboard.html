@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Patient Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles for Professional Look */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-light: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            color: #333;
+        }
+        .sidebar {
+            height: 100vh;
+            background: var(--primary-color);
+            color: white;
+            position: fixed;
+            width: 250px;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        .sidebar a {
+            color: #bdc3c7;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: #34495e;
+            color: white;
+            border-left: 4px solid var(--secondary-color);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+            border-left: 5px solid var(--secondary-color);
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            opacity: 0.8;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            height: 350px;
+        }
+        .patient-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: 0.3s;
+            height: 100%;
+            border: none;
+        }
+        .patient-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .patient-img-container {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        .patient-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .patient-card:hover .patient-img {
+            transform: scale(1.05);
+        }
+        .patient-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-high { background-color: var(--accent-color); }
+        .status-normal { background-color: #2ecc71; }
+        
+        .patient-info {
+            padding: 20px;
+        }
+        .patient-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        .patient-meta {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        .badge-custom {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Chat Popup Styles */
+        #chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 2000;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        #chat-popup.active {
+            display: flex;
+        }
+        .chat-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .chat-header .close-btn {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+        .chat-header .close-btn:hover {
+            opacity: 1;
+        }
+        #chat-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="text-center mb-5">
+            <h3><i class="fas fa-heartbeat me-2"></i>MediStat</h3>
+        </div>
+        <a href="#" class="active" onclick="showSection('dashboard', this)"><i class="fas fa-chart-pie me-3"></i>Dashboard</a>
+        <a href="#" onclick="showSection('patients', this)"><i class="fas fa-user-injured me-3"></i>Patients</a>
+        <a href="#" onclick="showSection('image-analysis', this)"><i class="fas fa-microscope me-3"></i>Image Analysis</a>
+        <a href="#" onclick="showSection('risk-assessment', this)"><i class="fas fa-file-medical-alt me-3"></i>Risk Assessment</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold" id="page-title">Dashboard Overview</h2>
+                <p class="text-muted">Welcome back, Dr. Smith</p>
+            </div>
+            <div class="user-profile d-flex align-items-center bg-white p-2 rounded shadow-sm">
+                <div class="me-3 text-end d-none d-md-block">
+                    <div class="fw-bold">Dr. Sarah Smith</div>
+                    <div class="text-muted small">Oncologist</div>
+                </div>
+                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 45px; height: 45px;">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: DASHBOARD -->
+        <div id="section-dashboard">
+            <!-- Stats Row -->
+            <div class="row mb-4 g-3">
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold">Total Patients</h6>
+                        <h2 class="mb-0" id="total-patients">0</h2>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex justify-content-between align-items-center" style="border-left-color: #e74c3c;">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold">High Density</h6>
+                        <h2 class="mb-0" id="high-density">0</h2>
+                    </div>
+                    <div class="stat-icon" style="color: #e74c3c;"><i class="fas fa-procedures"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex justify-content-between align-items-center" style="border-left-color: #2ecc71;">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold">Post-Menopause</h6>
+                        <h2 class="mb-0" id="post-meno">0</h2>
+                    </div>
+                    <div class="stat-icon" style="color: #2ecc71;"><i class="fas fa-female"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="stat-card d-flex justify-content-between align-items-center" style="border-left-color: #f1c40f;">
+                    <div>
+                        <h6 class="text-muted text-uppercase small fw-bold">Avg Age Group</h6>
+                        <h2 class="mb-0" id="avg-age">0</h2>
+                    </div>
+                    <div class="stat-icon" style="color: #f1c40f;"><i class="fas fa-chart-line"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div class="chart-container">
+                    <h5 class="mb-4 fw-bold">Age Group Distribution</h5>
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <h5 class="mb-4 fw-bold">Breast Density Overview</h5>
+                    <canvas id="densityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Appointments -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold">Recent Patients</h5>
+                            <button class="btn btn-sm btn-light text-primary" onclick="showSection('patients', document.querySelectorAll('.sidebar a')[1])">View All</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4">Patient</th>
+                                        <th>Exam Date</th>
+                                        <th>Status</th>
+                                        <th>Risk Factor</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-patients-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Upcoming Appointments -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0 fw-bold">Upcoming Appointments</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="bg-light rounded p-2 me-3 text-center" style="min-width: 50px;">
+                                <div class="small fw-bold text-danger">DEC</div>
+                                <div class="h5 mb-0">15</div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Emma Laurent</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>09:00 AM - Follow-up</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="bg-light rounded p-2 me-3 text-center" style="min-width: 50px;">
+                                <div class="small fw-bold text-primary">DEC</div>
+                                <div class="h5 mb-0">15</div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Sarah Petit</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>11:30 AM - Mammogram</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded p-2 me-3 text-center" style="min-width: 50px;">
+                                <div class="small fw-bold text-primary">DEC</div>
+                                <div class="h5 mb-0">16</div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">New Patient</h6>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>02:00 PM - Consultation</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card shadow-sm border-0 bg-primary text-white">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Quick Actions</h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-light text-primary fw-bold text-start" onclick="showSection('image-analysis', document.querySelectorAll('.sidebar a')[2])">
+                                <i class="fas fa-microscope me-2"></i> Analyze New Image
+                            </button>
+                            <button class="btn btn-outline-light fw-bold text-start" onclick="showSection('risk-assessment', document.querySelectorAll('.sidebar a')[3])">
+                                <i class="fas fa-calculator me-2"></i> Calculate Risk
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- END SECTION DASHBOARD -->
+
+        <!-- SECTION: PATIENTS -->
+        <div id="section-patients" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0">Patient Directory</h3>
+                <div class="input-group" style="max-width: 300px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Search patients...">
+                </div>
+            </div>
+            
+            <div class="row g-4" id="patients-grid">
+            <!-- Patient cards will be inserted here -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading patient data...</p>
+                <small class="text-danger">Note: If this persists, please run this file via a local server (e.g., VS Code Live Server) to allow CSV loading.</small>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center" id="pagination">
+                <!-- Pagination items will be inserted here -->
+            </ul>
+        </nav>
+        </div> <!-- END SECTION PATIENTS -->
+
+        <!-- SECTION: IMAGE ANALYSIS -->
+        <div id="section-image-analysis" style="display: none;">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4">Upload Histopathology Image</h4>
+                            <div class="mb-3">
+                                <label for="imageInput" class="form-label">Select Image</label>
+                                <input class="form-control" type="file" id="imageInput" accept="image/*">
+                            </div>
+                            <div class="text-center mt-4">
+                                <img id="imagePreview" src="#" alt="Preview" style="max-width: 100%; max-height: 300px; display: none; border-radius: 10px;" class="mb-3 shadow-sm">
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3" onclick="analyzeImage()">
+                                <i class="fas fa-microscope me-2"></i>Analyze Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body p-4" id="analysisResult">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-chart-area fa-3x mb-3"></i>
+                                <p>Upload an image to see AI analysis and XAI explanation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: RISK ASSESSMENT -->
+        <div id="section-risk-assessment" style="display: none;">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4">Breast Cancer Risk Calculator</h4>
+                            <form id="riskForm">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Age Group</label>
+                                        <select class="form-select" name="agegrp">
+                                            <option value="1">35-39</option><option value="2">40-44</option><option value="3">45-49</option>
+                                            <option value="4">50-54</option><option value="5">55-59</option><option value="6">60-64</option>
+                                            <option value="7">65-69</option><option value="8">70-74</option><option value="9">75-79</option>
+                                            <option value="10">80-84</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Menopause Status</label>
+                                        <select class="form-select" name="menopaus">
+                                            <option value="0">Pre-menopausal</option>
+                                            <option value="1">Post-menopausal</option>
+                                            <option value="9">Unknown</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Breast Density</label>
+                                        <select class="form-select" name="density">
+                                            <option value="1">Almost entirely fat</option>
+                                            <option value="2">Scattered fibroglandular</option>
+                                            <option value="3">Heterogeneously dense</option>
+                                            <option value="4">Extremely dense</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">BMI Group</label>
+                                        <select class="form-select" name="bmi">
+                                            <option value="1">10-24.9</option>
+                                            <option value="2">25-29.9</option>
+                                            <option value="3">30-34.9</option>
+                                            <option value="4">35+</option>
+                                        </select>
+                                    </div>
+                                    <!-- Add other fields as needed for full model -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Race</label>
+                                        <select class="form-select" name="race">
+                                            <option value="1">White</option><option value="2">Asian/Pacific</option>
+                                            <option value="3">Black</option><option value="4">Native American</option>
+                                            <option value="5">Mixed/Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Hispanic</label>
+                                        <select class="form-select" name="Hispanic">
+                                            <option value="0">No</option><option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Age First Birth</label>
+                                        <select class="form-select" name="agefirst">
+                                            <option value="0">&lt; 30</option><option value="1">&ge; 30</option>
+                                            <option value="2">Nulliparous</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Relatives with BC</label>
+                                        <select class="form-select" name="nrelbc">
+                                            <option value="0">None</option><option value="1">One</option><option value="2">2+</option>
+                                        </select>
+                                    </div>
+                                    <!-- Hidden defaults for simplified UI or add more fields -->
+                                    <input type="hidden" name="brstproc" value="0">
+                                    <input type="hidden" name="lastmamm" value="0">
+                                    <input type="hidden" name="surgmeno" value="9">
+                                    <input type="hidden" name="hrt" value="9">
+                                </div>
+                                <button type="button" class="btn btn-success mt-4 w-100" onclick="assessRisk()">
+                                    <i class="fas fa-calculator me-2"></i>Calculate Risk
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body p-4" id="riskResult">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                                <p>Fill the form to get a risk assessment.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Popup -->
+    <div id="chat-popup">
+        <div class="chat-header">
+            <span><i class="fas fa-robot me-2"></i>Medical Assistant</span>
+            <i class="fas fa-times close-btn" onclick="closeChat()"></i>
+        </div>
+        <iframe id="chat-frame" src=""></iframe>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <script>
+        // Mappings based on user requirements
+        const MAPPINGS = {
+            menopaus: { 0: 'Pre-meno', 1: 'Post-meno', 9: 'Unknown' },
+            agegrp: { 
+                1: '35-39', 2: '40-44', 3: '45-49', 4: '50-54', 
+                5: '55-59', 6: '60-64', 7: '65-69', 8: '70-74', 
+                9: '75-79', 10: '80-84' 
+            },
+            density: { 1: 'Fatty', 2: 'Diffuse', 3: 'Hetero', 4: 'Dense', 9: 'Unknown' },
+            race: { 1: 'White', 2: 'Asian', 3: 'Black', 4: 'Native', 5: 'Mixed', 9: 'Unknown' },
+            bmi: { 1: '10-24.9', 2: '25-29.9', 3: '30-34.9', 4: '35+', 9: 'Unknown' }
+        };
+
+        // Pagination State
+        let currentPage = 1;
+        const itemsPerPage = 8;
+        let currentData = [];
+
+        // Fetch and Parse CSV
+        Papa.parse('patients_data.csv', {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                const data = results.data;
+                initDashboard(data);
+            },
+            error: function(err) {
+                console.error("Error loading CSV:", err);
+                document.getElementById('patients-grid').innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-warning shadow-sm border-0" role="alert">
+                            <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Data Load Error</h4>
+                            <p>Could not load <strong>patients_data.csv</strong>. This is likely due to browser security restrictions (CORS) when opening HTML files directly.</p>
+                            <hr>
+                            <p class="mb-0"><strong>Solution:</strong> Please use a local server. In VS Code, right-click the HTML file and select <em>"Open with Live Server"</em>.</p>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        function initDashboard(data) {
+            // Filter out empty rows
+            data = data.filter(row => row.first_name);
+            currentData = data;
+
+            updateStats(data);
+            renderCharts(data);
+            renderPatients();
+            renderRecentPatients(data); // New function call
+
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
+                const term = e.target.value.toLowerCase();
+                currentData = data.filter(p => 
+                    (p.first_name + ' ' + p.last_name).toLowerCase().includes(term)
+                );
+                currentPage = 1; // Reset to page 1
+                renderPatients();
+            });
+        }
+
+        function renderRecentPatients(data) {
+            const tableBody = document.getElementById('recent-patients-table');
+            // Take last 5 patients (assuming data is chronological, or just first 5)
+            const recent = data.slice(0, 5); 
+            
+            tableBody.innerHTML = '';
+            recent.forEach(p => {
+                const isHighRisk = p.density === 4 || p.bmi === 4;
+                const statusBadge = isHighRisk 
+                    ? '<span class="badge bg-danger">High Risk</span>' 
+                    : '<span class="badge bg-success">Normal</span>';
+                
+                const riskFactor = p.density === 4 ? 'Dense Breast' : (p.bmi === 4 ? 'High BMI' : 'None');
+
+                // Construct URL params for chat (same as in renderPatients)
+                const params = new URLSearchParams({
+                    menopaus: p.menopaus, agegrp: p.agegrp, density: p.density,
+                    race: p.race, Hispanic: p.Hispanic, bmi: p.bmi,
+                    agefirst: p.agefirst, nrelbc: p.nrelbc, brstproc: p.brstproc,
+                    lastmamm: p.lastmamm, surgmeno: p.surgmeno, hrt: p.hrt,
+                    name: p.first_name + ' ' + p.last_name
+                });
+                const chatUrl = `/chat_ui?${params.toString()}`;
+
+                const row = `
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="patient_images/${p.patient_image}" class="rounded-circle me-2" width="30" height="30" alt="Avatar" onerror="this.src='https://via.placeholder.com/30?text=U'">
+                                <div class="fw-bold">${p.first_name} ${p.last_name}</div>
+                            </div>
+                        </td>
+                        <td>${p.exam_date}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-muted small">${riskFactor}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="openChat('${chatUrl}')">
+                                <i class="fas fa-comment-medical"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function updateStats(data) {
+            // Animate numbers
+            animateValue("total-patients", 0, data.length, 1000);
+            
+            const highDensity = data.filter(p => p.density === 4).length;
+            animateValue("high-density", 0, highDensity, 1000);
+
+            const postMeno = data.filter(p => p.menopaus === 1).length;
+            animateValue("post-meno", 0, postMeno, 1000);
+
+            const avgAgeGrp = data.reduce((acc, curr) => acc + (curr.agegrp || 0), 0) / data.length;
+            document.getElementById('avg-age').innerText = (Math.round(avgAgeGrp * 10) / 10).toFixed(1);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function renderCharts(data) {
+            // Age Chart
+            const ageCounts = {};
+            data.forEach(p => {
+                const label = MAPPINGS.agegrp[p.agegrp] || 'Unknown';
+                ageCounts[label] = (ageCounts[label] || 0) + 1;
+            });
+            
+            new Chart(document.getElementById('ageChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageCounts),
+                    datasets: [{
+                        label: 'Patients',
+                        data: Object.values(ageCounts),
+                        backgroundColor: '#3498db',
+                        borderRadius: 5
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Density Chart
+            const densityCounts = {};
+            data.forEach(p => {
+                const label = MAPPINGS.density[p.density] || 'Unknown';
+                densityCounts[label] = (densityCounts[label] || 0) + 1;
+            });
+
+            new Chart(document.getElementById('densityChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(densityCounts),
+                    datasets: [{
+                        data: Object.values(densityCounts),
+                        backgroundColor: ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#95a5a6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
+        }
+
+        function renderPatients() {
+            const grid = document.getElementById('patients-grid');
+            grid.innerHTML = '';
+
+            // Pagination Logic
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedItems = currentData.slice(start, end);
+
+            if (paginatedItems.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center text-muted">No patients found.</div>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            paginatedItems.forEach(p => {
+                const densityLabel = MAPPINGS.density[p.density] || 'Unknown';
+                const bmiLabel = MAPPINGS.bmi[p.bmi] || 'Unknown';
+                const menoLabel = MAPPINGS.menopaus[p.menopaus] || 'Unknown';
+                
+                const isHighRisk = p.density === 4 || p.bmi === 4;
+                const statusClass = isHighRisk ? 'status-high' : 'status-normal';
+                const statusText = isHighRisk ? 'High Risk' : 'Normal';
+
+                // Construct URL params for chat
+                const params = new URLSearchParams({
+                    menopaus: p.menopaus,
+                    agegrp: p.agegrp,
+                    density: p.density,
+                    race: p.race,
+                    Hispanic: p.Hispanic,
+                    bmi: p.bmi,
+                    agefirst: p.agefirst,
+                    nrelbc: p.nrelbc,
+                    brstproc: p.brstproc,
+                    lastmamm: p.lastmamm,
+                    surgmeno: p.surgmeno,
+                    hrt: p.hrt,
+                    name: p.first_name + ' ' + p.last_name
+                });
+                const chatUrl = `/chat_ui?${params.toString()}`;
+
+                const card = `
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="patient-card">
+                            <div class="patient-img-container">
+                                <img src="patient_images/${p.patient_image}" class="patient-img" alt="${p.first_name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                                <span class="patient-status ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="patient-info">
+                                <h5 class="patient-name">${p.first_name} ${p.last_name}</h5>
+                                <div class="patient-meta">
+                                    <i class="far fa-calendar-alt me-1"></i> Exam: ${p.exam_date}
+                                </div>
+                                <div>
+                                    <span class="badge-custom" title="Menopause Status"><i class="fas fa-venus me-1"></i>${menoLabel}</span>
+                                    <span class="badge-custom" title="BMI Group"><i class="fas fa-weight me-1"></i>${bmiLabel}</span>
+                                    <span class="badge-custom" title="Breast Density"><i class="fas fa-layer-group me-1"></i>${densityLabel}</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <a href="#" onclick="openChat('${chatUrl}'); return false;" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        <i class="fas fa-robot me-1"></i> Chat AI
+                                    </a>
+                                    <i class="fas fa-ellipsis-h text-muted" style="cursor:pointer"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const pageCount = Math.ceil(currentData.length / itemsPerPage);
+            pagination.innerHTML = '';
+
+            if (pageCount <= 1) return;
+
+            // Previous
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">Previous</a>
+                </li>`;
+
+            // Page Numbers
+            for (let i = 1; i <= pageCount; i++) {
+                // Show first, last, and pages around current
+                if (i === 1 || i === pageCount || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    pagination.innerHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                        </li>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    pagination.innerHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+
+            // Next
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === pageCount ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">Next</a>
+                </li>`;
+        }
+
+        window.changePage = function(page) {
+            const pageCount = Math.ceil(currentData.length / itemsPerPage);
+            if (page < 1 || page > pageCount) return;
+            currentPage = page;
+            renderPatients();
+            // Scroll to top of grid
+            const grid = document.getElementById('patients-grid');
+            if(grid) {
+                const y = grid.getBoundingClientRect().top + window.pageYOffset - 100;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }
+        }
+
+        function openChat(url) {
+            const popup = document.getElementById('chat-popup');
+            const frame = document.getElementById('chat-frame');
+            // Only reload if URL is different to preserve state if re-opening same patient
+            // Using getAttribute to avoid potential cross-origin issues or empty initial state
+            if (frame.getAttribute('src') !== url) {
+                 frame.src = url;
+            }
+            popup.classList.add('active');
+        }
+
+        function closeChat() {
+            const popup = document.getElementById('chat-popup');
+            popup.classList.remove('active');
+        }
+
+        // --- Navigation Logic ---
+        function showSection(sectionId, linkElement) {
+            // Hide all sections
+            ['section-dashboard', 'section-patients', 'section-image-analysis', 'section-risk-assessment'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            
+            // Show target section
+            document.getElementById('section-' + sectionId).style.display = 'block';
+            
+            // Update Sidebar Active State
+            if (linkElement) {
+                document.querySelectorAll('.sidebar a').forEach(el => el.classList.remove('active'));
+                linkElement.classList.add('active');
+            }
+
+            // Update Title
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'patients': 'Patient Directory',
+                'image-analysis': 'AI Image Analysis',
+                'risk-assessment': 'Risk Assessment Tool'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId];
+        }
+
+        // --- Image Analysis Logic ---
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function analyzeImage() {
+            const input = document.getElementById('imageInput');
+            if (!input.files[0]) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            const resultDiv = document.getElementById('analysisResult');
+            resultDiv.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Analyzing image with AI...</p></div>';
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            try {
+                const response = await fetch('/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                // Format Markdown to HTML (Simple converter)
+                const formattedAI = data.diagnostic_ai
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/### (.*?)\n/g, '<h5 class="text-primary mt-3">$1</h5>')
+                    .replace(/- (.*?)\n/g, '<li>$1</li>')
+                    .replace(/\n/g, '<br>');
+
+                const raw = data.diagnostic_raw;
+                const color = raw.prediction === 1 ? 'text-danger' : 'text-success';
+                const label = raw.prediction === 1 ? 'Malignant' : 'Benign';
+
+                resultDiv.innerHTML = `
+                    <div class="text-center mb-3">
+                        <h3 class="${color} fw-bold">${label}</h3>
+                        <div class="badge bg-secondary fs-6">Confidence: ${(raw.probability * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="formatted-response small">
+                        ${formattedAI}
+                    </div>
+                `;
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<div class="alert alert-danger">Error analyzing image.</div>';
+            }
+        }
+
+        // --- Risk Assessment Logic ---
+        async function assessRisk() {
+            const form = document.getElementById('riskForm');
+            const formData = new FormData(form);
+            const payload = {};
+            
+            // Convert FormData to JSON object with integers
+            for (let [key, value] of formData.entries()) {
+                payload[key] = parseInt(value);
+            }
+
+            const resultDiv = document.getElementById('riskResult');
+            resultDiv.innerHTML = '<div class="text-center"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Calculating risk...</p></div>';
+
+            try {
+                const response = await fetch('/assess-risk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                const formattedAnalysis = data.analysis
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/### (.*?)\n/g, '<h5 class="text-success mt-3">$1</h5>')
+                    .replace(/- (.*?)\n/g, '<li>$1</li>')
+                    .replace(/\n/g, '<br>');
+
+                const prob = data.risk_score.probability;
+                const color = prob > 0.5 ? 'text-danger' : 'text-success';
+
+                resultDiv.innerHTML = `
+                    <div class="text-center mb-3">
+                        <h3 class="${color} fw-bold">Risk Score: ${(prob * 100).toFixed(1)}%</h3>
+                    </div>
+                    <div class="formatted-response small">
+                        ${formattedAnalysis}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<div class="alert alert-danger">Error calculating risk.</div>';
+            }
+        }
+    </script>
+</body>
+</html>

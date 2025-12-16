@@ -1,0 +1,23 @@
+[
+    {
+        "timestamp": "2025-12-14T22:06:23.312802",
+        "role": "user",
+        "type": "text",
+        "content": "Evaluate risk for Antoine Fournier with data:\n- menopaus: 1\n- agegrp: 2\n- density: 3\n- race: 2\n- Hispanic: 0\n- bmi: 9\n- agefirst: 9\n- nrelbc: 9\n- brstproc: 1\n- lastmamm: 0\n- surgmeno: 1\n- hrt: 0\n",
+        "data": {}
+    },
+    {
+        "timestamp": "2025-12-14T22:06:30.921906",
+        "role": "user",
+        "type": "text",
+        "content": "salutt",
+        "data": {}
+    },
+    {
+        "timestamp": "2025-12-14T22:07:06.303190",
+        "role": "user",
+        "type": "text",
+        "content": "Evaluate risk for Antoine Fournier with data:  menopaus: 1 agegrp: 2 density: 3 race: 2 Hispanic: 0 bmi: 9 agefirst: 9 nrelbc: 9 brstproc: 1 lastmamm: 0 surgmeno: 1 hrt: 0",
+        "data": {}
+    }
+]

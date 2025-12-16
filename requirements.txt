@@ -1,0 +1,15 @@
+opencv-python
+numpy
+pandas
+scikit-image
+scipy
+tqdm
+scikit-learn
+joblib
+lightgbm
+python-multipart
+matplotlib
+tensorflow
+shap
+tensorflow-kerastf-keras
+xgboost

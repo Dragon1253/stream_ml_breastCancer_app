@@ -1,0 +1,16 @@
+[
+    {
+        "timestamp": "2025-12-14T21:50:19.890692",
+        "role": "user",
+        "type": "text",
+        "content": "Evaluate risk for Sarah Petit with data:\n- menopaus: 9\n- agegrp: 7\n- density: 4\n- race: 3\n- Hispanic: 9\n- bmi: 3\n- agefirst: 9\n- nrelbc: 2\n- brstproc: 0\n- lastmamm: 1\n- surgmeno: 0\n- hrt: 9\n",
+        "data": {}
+    },
+    {
+        "timestamp": "2025-12-14T21:50:37.796341",
+        "role": "user",
+        "type": "text",
+        "content": "tfftvrtfgrgf cfdggfgfc *",
+        "data": {}
+    }
+]
