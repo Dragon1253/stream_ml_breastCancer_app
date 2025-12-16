@@ -13,3 +13,10 @@ tensorflow
 shap
 tensorflow-kerastf-keras
 xgboost
+
+streamlit
+langchain-huggingface
+langchain-chroma
+python-dotenv
+openai
+groq
