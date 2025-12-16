@@ -1,5 +1,5 @@
-opencv-python
-numpy
+opencv-python-headless
+numpy<2
 pandas
 scikit-image
 scipy
@@ -11,12 +11,8 @@ python-multipart
 matplotlib
 tensorflow
 shap
-tensorflow-kerastf-keras
-xgboost
-
 streamlit
 langchain-huggingface
 langchain-chroma
-python-dotenv
 openai
-groq
+python-dotenv
